@@ -108,17 +108,7 @@ const handleSubmit = (e) => {
         month: 'long',
         day: 'numeric'
       });
-      
-    //   Swal.fire({
-    //     position: "top-end",
-    //     icon: "success",
-    //     title: "Event has been created successfully!",
-    //     showConfirmButton: false,
-    //     timer: 1500,
-    //   });
-      
       toast.success(`Event scheduled for ${formattedDate} has been added successfully!`);
-      
       // Reset form after successful submission
       e.target.reset();
       setStartDate(new Date());
@@ -232,7 +222,7 @@ const handleSubmit = (e) => {
             type="submit"
             className="btn w-full text-white mt-6 rounded-full bg-linear-to-r from-pink-500 to-red-600 hover:from-pink-600 hover:to-red-700"
           >
-            Add Model
+            Add Event
           </button>
         </form>
       </div>

@@ -95,6 +95,9 @@ const NavBar = () => {
                   <Link to={"/addEvent"}>Create Event</Link>
                 </li>
                 <li>
+                  <Link to={"/myCreatedEvent"}>MY Created Event</Link>
+                </li>
+                <li>
                   <Link to={"/myJoinEvent"}>My join Event</Link>
                 </li>
 

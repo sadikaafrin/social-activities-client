@@ -6,13 +6,16 @@ import Register from "../Pages/Auth/Register";
 import Profile from "../Pages/Profile";
 import PrivateRoute from "../PrivateRoute/PrivateRoute";
 import AddEvent from "../Pages/AddEvent";
+import UpcomingEvent from "../components/UpcomingEvent";
+import UpcomingEventDetails from "../components/UpcomingEventDetails";
+import MyJoinEvent from "../components/MyJoinEvent";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout></MainLayout>,
     children: [
-     {
+      {
         index: true,
         element: <Home />,
       },
@@ -39,6 +42,22 @@ export const router = createBrowserRouter([
             <AddEvent />
           </PrivateRoute>
         ),
+      },
+      {
+        path: "/upcoming-events",
+        element: <UpcomingEvent />,
+        loader: () => fetch("http://localhost:3000/upcoming-events"),
+      },
+      {
+        path: "/upcoming-events-details/:id",
+        element: <UpcomingEventDetails />,
+        loader: () => fetch("http://localhost:3000/upcoming-events-details"),
+      },
+         {
+        path: "/myJoinEvent",
+        element: <PrivateRoute>
+          <MyJoinEvent></MyJoinEvent>
+        </PrivateRoute>
       },
     ],
   },

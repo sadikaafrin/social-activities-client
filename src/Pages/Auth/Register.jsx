@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
-import { toast } from 'react-toastify';
-import { AuthContext } from '../../contex/AuthContext';
-import { FaEye } from 'react-icons/fa';
-import { IoEyeOff } from 'react-icons/io5';
+import React, { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { toast } from "react-toastify";
+import { AuthContext } from "../../contex/AuthContext";
+import { FaEye } from "react-icons/fa";
+import { IoEyeOff } from "react-icons/io5";
 
 const Register = () => {
-      const [show, setShow] = useState(false);
+  const [show, setShow] = useState(false);
   const navigate = useNavigate();
   const {
     createUserWithEmailAndPasswordFunc,
@@ -22,11 +22,11 @@ const Register = () => {
   const form = location.state || "/";
   console.log(location);
 
-    useEffect(() => {
-      if (user) {
-        navigate(form, { replace: true });
-      }
-    }, [user, navigate, form]); 
+  useEffect(() => {
+    if (user) {
+      navigate(form, { replace: true });
+    }
+  }, [user, navigate, form]);
 
   //  if(user){
   //     navigate('/');
@@ -52,59 +52,129 @@ const Register = () => {
       return;
     }
     // create user with email and password
+    // createUserWithEmailAndPasswordFunc(email, password)
+    //   .then((res) => {
+    //     const createdUser = res.user;
+    //     // Update profile
+    //     updateProfileFunc(displayName, photoURL)
+    //       .then(() => {
+    //         const updatedUser = {
+    //           ...createdUser,
+    //           displayName: displayName,
+    //           photoURL: photoURL,
+    //         };
+    //         setUser(updatedUser);
+    //         // const createdUser = res.user;
+    //         console.log(res);
+    //         setLoading(false);
+    //         toast.success("Signup Successfully");
+    //         navigate(form);
+    //       })
+    //       .catch((error) => {
+    //         toast.error(error.message);
+    //       });
+    //   })
+    //   .catch((e) => {
+    //     console.log(e.code);
+    //     if (e.code == "auth/email-already-in-use") {
+    //       toast.error("User already exist in the database");
+    //     } else {
+    //       if (e.code == "auth/weak-password") {
+    //         toast.error("Password should be at least 6 digit");
+    //       } else {
+    //         toast.error(e.code);
+    //       }
+    //     }
+    //   });
     createUserWithEmailAndPasswordFunc(email, password)
-      .then((res) => {
+      .then(async (res) => {
         const createdUser = res.user;
-        // Update profile
-        updateProfileFunc(displayName, photoURL)
-          .then(() => {
-            const updatedUser = {
-              ...createdUser,
-              displayName: displayName,
-              photoURL: photoURL,
-            };
-            setUser(updatedUser);
-            // const createdUser = res.user;
-            console.log(res);
-            setLoading(false);
-            toast.success("Signup Successfully");
-            navigate(form);
-          })
-          .catch((error) => {
-            toast.error(error.message);
-          });
+        // Update Firebase profile
+        await updateProfileFunc(displayName, photoURL);
+        const updatedUser = {
+          ...createdUser,
+          displayName,
+          photoURL,
+        };
+        setUser(updatedUser);
+        setLoading(false);
+        const token = await createdUser.getIdToken();
+        // Send user info to your Express backend to store in MongoDB
+        await fetch("http://localhost:3000/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, 
+          },
+          body: JSON.stringify({
+            displayName,
+            photoURL,
+            email,
+          }),
+        });
+
+        toast.success("Signup Successfully");
+        navigate(form);
       })
       .catch((e) => {
-        console.log(e.code);
-        if (e.code == "auth/email-already-in-use") {
-          toast.error("User already exist in the database");
+        if (e.code === "auth/email-already-in-use") {
+          toast.error("User already exists");
+        } else if (e.code === "auth/weak-password") {
+          toast.error("Password should be at least 6 characters");
         } else {
-          if (e.code == "auth/weak-password") {
-            toast.error("Password should be at least 6 digit");
-          } else {
-            toast.error(e.code);
-          }
+          toast.error(e.code);
         }
       });
   };
 
   // Google Sign
-  const handleGoogleSignin = () => {
-    signInWithFunc()
-      .then((result) => {
-        setLoading(false);
-        console.log(result.user);
-        setUser(result.user);
-        navigate(form);
-        toast.success("Signin successfully");
-      })
-      .catch((e) => {
-        console.log(e);
-        toast.error(e.message);
-      });
-  };
-    return (
-         <div className="flex justify-center items-center min-h-screen">
+  const handleGoogleSignin = async () => {
+  try {
+    const result = await signInWithFunc();
+    const loggedUser = result.user;
+    setUser(loggedUser);
+    setLoading(false);
+
+    // ✅ Get Firebase ID token
+    const token = await loggedUser.getIdToken();
+
+    // ✅ Send user info to your backend (same /register route)
+    await fetch("http://localhost:3000/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        displayName: loggedUser.displayName,
+        photoURL: loggedUser.photoURL,
+        email: loggedUser.email,
+      }),
+    });
+
+    toast.success("Google Signin Successfully");
+    navigate(form);
+  } catch (e) {
+    console.error(e);
+    toast.error(e.message);
+  }
+};
+  // const handleGoogleSignin = () => {
+  //   signInWithFunc()
+  //     .then((result) => {
+  //       setLoading(false);
+  //       console.log(result.user);
+  //       setUser(result.user);
+  //       navigate(form);
+  //       toast.success("Signin successfully");
+  //     })
+  //     .catch((e) => {
+  //       console.log(e);
+  //       toast.error(e.message);
+  //     });
+  // };
+  return (
+    <div className="flex justify-center items-center min-h-screen">
       <div className="py-5   card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
         <h1 className="font-semibold text-2xl text-center">
           Register your account
@@ -190,7 +260,7 @@ const Register = () => {
         </form>
       </div>
     </div>
-    );
+  );
 };
 
 export default Register;

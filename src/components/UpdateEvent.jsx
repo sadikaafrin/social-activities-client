@@ -38,7 +38,6 @@ const UpdateEvent = () => {
       });
   }, [id, axiosSecure]);
 
-  // ✅ Handle form submission
   const handleUpdate = (e) => {
     e.preventDefault();
 

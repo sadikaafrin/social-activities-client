@@ -7,6 +7,9 @@ const UpcomingEvent = () => {
   const [events, setEvents] = useState(data || []);
   const [loading, setLoading] = useState(false);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [category, setCategory] = useState("");
+
   useEffect(() => {
     const filterUpcomingEvents = () => {
       const currentDate = new Date();
@@ -37,54 +40,67 @@ const UpcomingEvent = () => {
   const uniqueEvents = Array.from(
     new Map(upcomingEvents.map((event) => [event._id, event])).values()
   );
-  //   const handleSearch = (e) => {
-  //   e.preventDefault();
-  //   const search_text = e.target.search.value.trim();
-  //   if (!search_text) return;
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-  //   setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (searchText) params.append("search", searchText);
+      if (category) params.append("category", category);
 
-  //   fetch(`https://3d-models-hub-server-kappa.vercel.app/search?search=${search_text}`)
-  //     .then(res => res.json())
-  //     .then(data => {
-  //       console.log(data);
-  //       // Make sure we’re using the right data shape
-  //       setModels(data.result || data || []);
-  //       setLoading(false);
-  //     })
-  //     .catch(() => setLoading(false));
-  // };
+      const res = await fetch(
+        `http://localhost:3000/search?${params.toString()}`
+      );
+      const data = await res.json();
 
-  // Remove duplicates by _id
-  // const uniqueEvents = Array.from(
-  //   new Map(events.map(event => [event._id, event])).values()
-  // );
+      // Filter by upcoming date too
+      const upcomingOnly = data.result.filter((event) => {
+        const eventDate = new Date(event.event_date);
+        return eventDate >= new Date();
+      });
+
+      setEvents(upcomingOnly);
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       <div className="text-2xl text-center font-bold">All Upcoming Event</div>
       <p className="text-center">Explore event</p>
+      <form
+        onSubmit={handleSearch}
+        className="mt-5 mb-10 flex flex-wrap gap-2 justify-center"
+      >
+        <input
+          type="search"
+          name="search"
+          placeholder="Search by name"
+          className="input input-bordered rounded-full px-4"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
 
-      <form className="mt-5 mb-10 flex gap-2 justify-center">
-        <label className="input rounded-full">
-          <svg
-            className="h-[1em] opacity-50"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
-            <g
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              strokeWidth="2.5"
-              fill="none"
-              stroke="currentColor"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.3-4.3"></path>
-            </g>
-          </svg>
-          <input name="search" type="search" placeholder="Search" />
-        </label>
-        <button className="btn btn-secondary rounded-full bg-[#3c576e]">
+        <select
+          className="select select-bordered rounded-full px-4"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          <option value="Cleanup">Cleanup</option>
+          <option value="Plantation">Plantation</option>
+          <option value="Animals">Animals</option>
+          <option value="Characters">Characters</option>
+        </select>
+
+        <button
+          type="submit"
+          className="btn btn-secondary rounded-full bg-[#3c576e]"
+        >
           {loading ? "Searching..." : "Search"}
         </button>
       </form>

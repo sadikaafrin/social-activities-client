@@ -1,4 +1,4 @@
-import React, { use } from "react";
+import React, { use, useEffect, useState } from "react";
 import { Link, NavLink } from "react-router";
 import { AuthContext } from "../contex/AuthContext";
 import { IoLogIn, IoLogOut } from "react-icons/io5";
@@ -7,12 +7,23 @@ import { FaUser } from "react-icons/fa";
 const link = (
   <>
     <li>
-      <NavLink to='/upcoming-events'>Upcoming Events</NavLink>
+      <NavLink to="/upcoming-events">Upcoming Events</NavLink>
     </li>
   </>
 );
 
 const NavBar = () => {
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+
+  useEffect(() => {
+    const html = document.querySelector("html");
+    html.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const handleTheme = (checked) => {
+    setTheme(checked ? "dark" : "light");
+  };
   const { user, signOutUserFunc } = use(AuthContext);
 
   return (
@@ -41,7 +52,6 @@ const NavBar = () => {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
           >
             {link}
-          
           </ul>
         </div>
         <NavLink to="/" className="btn btn-ghost text-xl">
@@ -52,9 +62,7 @@ const NavBar = () => {
         </NavLink>
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
-         {link}
-        </ul>
+        <ul className="menu menu-horizontal px-1">{link}</ul>
       </div>
       <div className="navbar-end">
         {/* <NavLink to={'auth/register'} className="btn">Register</NavLink> */}
@@ -107,11 +115,11 @@ const NavBar = () => {
                 </Link>
               </li> */}
 
-                {/* <input
+                <input
            onChange={(e)=> handleTheme(e.target.checked)}
            type="checkbox"
            defaultChecked={localStorage.getItem('theme') === "dark"}
-           className="toggle"/> */}
+           className="toggle"/>
 
                 {/* <li>
                 <a>
@@ -132,7 +140,7 @@ const NavBar = () => {
           ) : (
             <Link
               to={"/auth/login"}
-              className="btn rounded-full border-gray-300  btn-sm bg-linear-to-r from-pink-500 to-red-500 text-white"
+              className="btn rounded-full border-gray-300  btn-sm bg-[#b83d46] text-white"
             >
               {" "}
               <IoLogIn /> Login

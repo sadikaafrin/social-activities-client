@@ -51,41 +51,6 @@ const Register = () => {
       );
       return;
     }
-    // create user with email and password
-    // createUserWithEmailAndPasswordFunc(email, password)
-    //   .then((res) => {
-    //     const createdUser = res.user;
-    //     // Update profile
-    //     updateProfileFunc(displayName, photoURL)
-    //       .then(() => {
-    //         const updatedUser = {
-    //           ...createdUser,
-    //           displayName: displayName,
-    //           photoURL: photoURL,
-    //         };
-    //         setUser(updatedUser);
-    //         // const createdUser = res.user;
-    //         console.log(res);
-    //         setLoading(false);
-    //         toast.success("Signup Successfully");
-    //         navigate(form);
-    //       })
-    //       .catch((error) => {
-    //         toast.error(error.message);
-    //       });
-    //   })
-    //   .catch((e) => {
-    //     console.log(e.code);
-    //     if (e.code == "auth/email-already-in-use") {
-    //       toast.error("User already exist in the database");
-    //     } else {
-    //       if (e.code == "auth/weak-password") {
-    //         toast.error("Password should be at least 6 digit");
-    //       } else {
-    //         toast.error(e.code);
-    //       }
-    //     }
-    //   });
     createUserWithEmailAndPasswordFunc(email, password)
       .then(async (res) => {
         const createdUser = res.user;
@@ -104,7 +69,7 @@ const Register = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             displayName,
@@ -129,50 +94,35 @@ const Register = () => {
 
   // Google Sign
   const handleGoogleSignin = async () => {
-  try {
-    const result = await signInWithFunc();
-    const loggedUser = result.user;
-    setUser(loggedUser);
-    setLoading(false);
+    try {
+      const result = await signInWithFunc();
+      const loggedUser = result.user;
+      setUser(loggedUser);
+      setLoading(false);
 
-    // ✅ Get Firebase ID token
-    const token = await loggedUser.getIdToken();
+      // Get Firebase ID token
+      const token = await loggedUser.getIdToken();
 
-    // ✅ Send user info to your backend (same /register route)
-    await fetch("http://localhost:3000/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        displayName: loggedUser.displayName,
-        photoURL: loggedUser.photoURL,
-        email: loggedUser.email,
-      }),
-    });
+      await fetch("http://localhost:3000/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          displayName: loggedUser.displayName,
+          photoURL: loggedUser.photoURL,
+          email: loggedUser.email,
+        }),
+      });
 
-    toast.success("Google Signin Successfully");
-    navigate(form);
-  } catch (e) {
-    console.error(e);
-    toast.error(e.message);
-  }
-};
-  // const handleGoogleSignin = () => {
-  //   signInWithFunc()
-  //     .then((result) => {
-  //       setLoading(false);
-  //       console.log(result.user);
-  //       setUser(result.user);
-  //       navigate(form);
-  //       toast.success("Signin successfully");
-  //     })
-  //     .catch((e) => {
-  //       console.log(e);
-  //       toast.error(e.message);
-  //     });
-  // };
+      toast.success("Google Signin Successfully");
+      navigate(form);
+    } catch (e) {
+      console.error(e);
+      toast.error(e.message);
+    }
+  };
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="py-5   card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">

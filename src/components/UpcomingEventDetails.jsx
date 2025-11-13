@@ -19,14 +19,14 @@ const UpcomingEventDetails = () => {
       setLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:3000/upcoming-events-details/${id}`
+          `https://social-activities-server.vercel.app/upcoming-events-details/${id}`
         );
         const data = await res.json();
         setEvent(data.result);
 
         if (user?.email) {
           const joinRes = await fetch(
-            `http://localhost:3000/check-joined?eventId=${id}&email=${user.email}`
+            `https://social-activities-server.vercel.app/check-joined?eventId=${id}&email=${user.email}`
           );
           const joinData = await joinRes.json();
           setHasJoined(joinData.joined); // true or false
@@ -71,7 +71,7 @@ const UpcomingEventDetails = () => {
       joined_by: user.email,
     };
 
-    fetch(`http://localhost:3000/join-event/${event._id}`, {
+    fetch(`https://social-activities-server.vercel.app/join-event/${event._id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

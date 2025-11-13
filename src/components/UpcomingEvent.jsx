@@ -50,7 +50,7 @@ const UpcomingEvent = () => {
       if (category) params.append("category", category);
 
       const res = await fetch(
-        `http://localhost:3000/search?${params.toString()}`
+        `https://social-activities-server.vercel.app/search?${params.toString()}`
       );
       const data = await res.json();
 

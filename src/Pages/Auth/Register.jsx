@@ -65,7 +65,7 @@ const Register = () => {
         setLoading(false);
         const token = await createdUser.getIdToken();
         // Send user info to your Express backend to store in MongoDB
-        await fetch("http://localhost:3000/register", {
+        await fetch("https://social-activities-server.vercel.app/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -103,7 +103,7 @@ const Register = () => {
       // Get Firebase ID token
       const token = await loggedUser.getIdToken();
 
-      await fetch("http://localhost:3000/register", {
+      await fetch("https://social-activities-server.vercel.app/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
